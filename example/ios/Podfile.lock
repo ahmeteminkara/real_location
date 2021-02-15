@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - real_location (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - real_location (from `.symlinks/plugins/real_location/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  real_location:
+    :path: ".symlinks/plugins/real_location/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  real_location: 73599ce9989d7415e2da42403073eb564a3ae03b
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.9.3

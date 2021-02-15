@@ -1,0 +1,74 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
+import 'location_data.dart';
+
+class RealLocation {
+  static const MethodChannel _channel = const MethodChannel('real_location');
+
+  static RealLocation get instanse => RealLocation();
+
+  RealLocation() {
+    _setListener();
+  }
+
+  _setListener() async {
+    try {
+      EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
+        // print("eventLocationEnable: $e");
+        _listenEnableLocationController.add(e);
+      });
+
+      EventChannel("eventTrackingLocation").receiveBroadcastStream().listen((e) {
+        // print("eventTrackingLocation: $e");
+        _listenTrackingLocationController.add(e);
+      });
+
+      EventChannel("eventLocation").receiveBroadcastStream().listen((e) {
+        try {
+          Map<String, dynamic> json = jsonDecode(e);
+          // print("eventLocation -> json: $json");
+          _listenLocationController.add(LocationData(
+            double.parse(json["latitude"].toString()),
+            double.parse(json["longitude"].toString()),
+            accuracy: double.parse(json["accuracy"].toString()),
+            speed: double.parse(json["speed"].toString()),
+          ));
+        } catch (e) {
+          // print("eventLocation -> error: "+ e.toString());
+        }
+      });
+    } catch (e) {
+      // print("Error: $e");
+    }
+  }
+
+  Stream<bool> get listenTrackingLocation => _listenTrackingLocationController.stream;
+  final _listenTrackingLocationController = StreamController<bool>();
+
+  Stream<bool> get listenEnableLocation => _listenEnableLocationController.stream;
+  final _listenEnableLocationController = StreamController<bool>();
+
+  Stream<LocationData> get listenLocation => _listenLocationController.stream;
+  final _listenLocationController = StreamController<LocationData>();
+
+  Future<bool> get isLocationEnable async {
+    return await _channel.invokeMethod("isLocationEnable");
+  }
+
+  Future<void> startTracker() async {
+    await _channel.invokeMethod("start");
+  }
+
+  Future<void> stopTracker() async {
+    await _channel.invokeMethod("stop");
+  }
+
+  void dispose() {
+    _listenLocationController.close();
+    _listenEnableLocationController.close();
+    _listenTrackingLocationController.close();
+  }
+}
