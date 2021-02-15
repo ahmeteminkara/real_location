@@ -21,7 +21,7 @@ LocationData locationData;
 bool isEnableLocation = false;
 bool isTrackingLocation = false;
 
-
+// model of location
 LocationData = { 
   latitude:double,
   longitude:double,
