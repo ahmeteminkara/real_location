@@ -5,7 +5,7 @@ This flutter plugin listens for the location of the device. Returns real locatio
 ## Getting Started
 ```yaml
 dependencies:
-    ble_radar:
+    real_location:
         git:
             url: git://github.com/ahmeteminkara/real_location.git
 ```
