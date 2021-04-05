@@ -14,9 +14,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/real_location/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  real_location: 73599ce9989d7415e2da42403073eb564a3ae03b
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  real_location: a74ee9b2121176a1247b0c8209c2fab4a4763e6b
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.1
