@@ -135,19 +135,6 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
         eventLocationEnable.eventSink?(isEnableLocation)
         // print(" --> didChangeAuthorization isEnableLocation: ",isEnableLocation)
     }
-
-    func open(scheme: String) {
-        if let url = URL(string: scheme) {
-            if #available(iOS 10, *) {
-                UIApplication.shared.open(url, options: [:], completionHandler: { (success) in
-                    print("Open \(scheme): \(success)")
-                })
-            } else {
-                let success = UIApplication.shared.openURL(url)
-                print("Open \(scheme): \(success)")
-            }
-        }
-    }
     
     public func goToAppSetting(){
         // print(" --> goToAppSetting")
@@ -155,14 +142,13 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             let alert = UIAlertController(title: "Uyarı", message: "Konum erişimi kapalı, uygulamaya konum erişimi veriniz.", preferredStyle:.alert)
             
             alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: {(cAlertAction) in
-                //Redirect to Settings app
-                //UIApplication.shared.open(URL(string:UIApplication.openSettingsURLString)!)
-                // for versions iOS 10 and above
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:])
+               let url = URL(string:UIApplication.openSettingsURLString)
+                
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(url!)
+                } else {
+                    UIApplication.shared.openURL(url!)
                 }
-
-                self.open()
             }))
             
             UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil);
