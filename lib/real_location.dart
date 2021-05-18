@@ -74,6 +74,7 @@ class RealLocation {
     if (_subEventLocationEnable != null) _subEventLocationEnable.cancel();
     if (_subEventTrackingLocation != null) _subEventTrackingLocation.cancel();
     if (_subEventLocation != null) _subEventLocation.cancel();
+
     _listenLocationController.close();
     _listenEnableLocationController.close();
     _listenTrackingLocationController.close();
