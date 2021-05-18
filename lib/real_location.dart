@@ -10,23 +10,27 @@ class RealLocation {
 
   static RealLocation get instanse => RealLocation();
 
+  static StreamSubscription _subEventLocationEnable;
+  static StreamSubscription _subEventTrackingLocation;
+  static StreamSubscription _subEventLocation;
+
   RealLocation() {
     _setListener();
   }
 
   _setListener() async {
     try {
-      EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
+      _subEventLocationEnable = EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
         // print("eventLocationEnable: $e");
         _listenEnableLocationController.add(e);
       });
 
-      EventChannel("eventTrackingLocation").receiveBroadcastStream().listen((e) {
+      _subEventTrackingLocation = EventChannel("eventTrackingLocation").receiveBroadcastStream().listen((e) {
         // print("eventTrackingLocation: $e");
         _listenTrackingLocationController.add(e);
       });
 
-      EventChannel("eventLocation").receiveBroadcastStream().listen((e) {
+      _subEventLocation = EventChannel("eventLocation").receiveBroadcastStream().listen((e) {
         try {
           Map<String, dynamic> json = jsonDecode(e);
           // print("eventLocation -> json: $json");
@@ -67,6 +71,9 @@ class RealLocation {
   }
 
   void dispose() {
+    if (_subEventLocationEnable != null) _subEventLocationEnable.cancel();
+    if (_subEventTrackingLocation != null) _subEventTrackingLocation.cancel();
+    if (_subEventLocation != null) _subEventLocation.cancel();
     _listenLocationController.close();
     _listenEnableLocationController.close();
     _listenTrackingLocationController.close();
