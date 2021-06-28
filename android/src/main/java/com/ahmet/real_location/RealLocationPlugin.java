@@ -45,6 +45,7 @@ public class RealLocationPlugin
     private final Handler handlerLocation = new Handler();
     EventChannel.EventSink eventSinkLocation;
     EventChannel.EventSink eventSinkTrackingLocation;
+    EventChannel.EventSink eventSinkPermissionResult;
     private MethodChannel channel;
     private Context context;
     private Activity activity;
@@ -76,53 +77,66 @@ public class RealLocationPlugin
 
         messenger = flutterPluginBinding.getBinaryMessenger();
 
-        EventChannel eventLocationEnable = new EventChannel(messenger, "eventLocationEnable");
-        eventLocationEnable.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object arguments, final EventChannel.EventSink events) {
-                context.registerReceiver(new BroadcastReceiver() {
+        new EventChannel(messenger, "eventLocationEnable")
+                .setStreamHandler(new EventChannel.StreamHandler() {
                     @Override
-                    public void onReceive(Context context, Intent intent) {
+                    public void onListen(Object arguments, final EventChannel.EventSink events) {
+                        context.registerReceiver(new BroadcastReceiver() {
+                            @Override
+                            public void onReceive(Context context, Intent intent) {
 
-                        //Log.d(TAG, "Açıldı kapandı");
-                        boolean isOpen = DeviceControls.isOpenLocation(activity);
-                        events.success(isOpen);
+                                //Log.d(TAG, "Açıldı kapandı");
+                                boolean isOpen = DeviceControls.isOpenLocation(activity);
+                                events.success(isOpen);
+
+                            }
+                        }, new IntentFilter(LocationManager.MODE_CHANGED_ACTION));
+                    }
+
+                    @Override
+                    public void onCancel(Object arguments) {
 
                     }
-                }, new IntentFilter(LocationManager.MODE_CHANGED_ACTION));
-            }
+                });
 
-            @Override
-            public void onCancel(Object arguments) {
+        new EventChannel(messenger, "eventLocation")
+                .setStreamHandler(new EventChannel.StreamHandler() {
+                    @Override
+                    public void onListen(Object arguments, EventChannel.EventSink events) {
+                        eventSinkLocation = events;
+                    }
 
-            }
-        });
+                    @Override
+                    public void onCancel(Object arguments) {
+                        eventSinkLocation = null;
+                    }
+                });
 
-        EventChannel eventLocation = new EventChannel(messenger, "eventLocation");
-        eventLocation.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object arguments, EventChannel.EventSink events) {
-                eventSinkLocation = events;
-            }
+        new EventChannel(messenger, "eventTrackingLocation")
+                .setStreamHandler(new EventChannel.StreamHandler() {
+                    @Override
+                    public void onListen(Object arguments, EventChannel.EventSink events) {
+                        eventSinkTrackingLocation = events;
+                    }
 
-            @Override
-            public void onCancel(Object arguments) {
-                eventSinkLocation = null;
-            }
-        });
+                    @Override
+                    public void onCancel(Object arguments) {
+                        eventSinkTrackingLocation = null;
+                    }
+                });
 
-        EventChannel eventTrackingLocation = new EventChannel(messenger, "eventTrackingLocation");
-        eventTrackingLocation.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object arguments, EventChannel.EventSink events) {
-                eventSinkTrackingLocation = events;
-            }
+        new EventChannel(messenger, "eventPermissionResult")
+                .setStreamHandler(new EventChannel.StreamHandler() {
+                    @Override
+                    public void onListen(Object arguments, EventChannel.EventSink events) {
+                        eventSinkPermissionResult = events;
+                    }
 
-            @Override
-            public void onCancel(Object arguments) {
-                eventSinkTrackingLocation = null;
-            }
-        });
+                    @Override
+                    public void onCancel(Object arguments) {
+                        eventSinkPermissionResult = null;
+                    }
+                });
 
     }
 
@@ -144,6 +158,9 @@ public class RealLocationPlugin
             case "stop":
                 handlerLocation.removeCallbacks(runnableLocation);
                 eventSinkTrackingLocation.success(false);
+                break;
+            case "requestPermission":
+                DeviceControls.checkSetting(activity);
                 break;
 
         }
@@ -180,14 +197,19 @@ public class RealLocationPlugin
         if (requestCode == DeviceControls.requestCodeLocation) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
 
+                eventSinkPermissionResult.success(true);
+                /*
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Konum erişimi reddedildi");
                 builder.setMessage("Konum erişimi izni vermeniz gerekmektedir");
                 builder.setPositiveButton(android.R.string.ok, null);
                 builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
                 builder.show();
+
+                 */
             } else {
-                runOnUiThreadMethod();
+                eventSinkPermissionResult.success(false);
+                //runOnUiThreadMethod();
             }
         }
         return false;
@@ -204,15 +226,18 @@ public class RealLocationPlugin
         if (requestCode == DeviceControls.locationResultCode) {
 
             if (DeviceControls.isOpenLocation(activity)) {
-                runOnUiThreadMethod();
-                Toast.makeText(activity, "Konum açıldı", Toast.LENGTH_SHORT).show();
+                eventSinkPermissionResult.success(true);
+                //Toast.makeText(activity, "Konum açıldı", Toast.LENGTH_SHORT).show();
             } else {
+                eventSinkPermissionResult.success(false);
+                /*
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Konum devre dışı");
                 builder.setMessage("Bu uygulamanın konum erişimine ihtiyacı var, lütfen konumu açınız");
                 builder.setPositiveButton(android.R.string.ok, null);
                 builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
                 builder.show();
+                */
             }
 
         }
