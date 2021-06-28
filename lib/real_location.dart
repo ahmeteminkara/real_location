@@ -13,6 +13,7 @@ class RealLocation {
   static StreamSubscription _subEventLocationEnable;
   static StreamSubscription _subEventTrackingLocation;
   static StreamSubscription _subEventLocation;
+  static StreamSubscription _subPermissionResult;
 
   RealLocation() {
     _setListener();
@@ -20,6 +21,11 @@ class RealLocation {
 
   _setListener() async {
     try {
+      _subPermissionResult = EventChannel("eventPermissionResult").receiveBroadcastStream().listen((e) {
+        // print("eventLocationEnable: $e");
+        _listenPermissionResultController.add(e);
+      });
+
       _subEventLocationEnable = EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
         // print("eventLocationEnable: $e");
         _listenEnableLocationController.add(e);
@@ -58,25 +64,27 @@ class RealLocation {
   Stream<LocationData> get listenLocation => _listenLocationController.stream;
   final _listenLocationController = StreamController<LocationData>();
 
-  Future<bool> get isLocationEnable async {
-    return await _channel.invokeMethod("isLocationEnable");
-  }
+  Stream<bool> get listenPermissionResult => _listenPermissionResultController.stream;
+  final _listenPermissionResultController = StreamController<bool>();
 
-  Future<void> startTracker() async {
-    await _channel.invokeMethod("start");
-  }
+  Future<void> requestPermission() async => await _channel.invokeMethod("requestPermission");
 
-  Future<void> stopTracker() async {
-    await _channel.invokeMethod("stop");
-  }
+  Future<bool> get isLocationEnable async => await _channel.invokeMethod("isLocationEnable");
+
+  Future<void> startTracker() async => await _channel.invokeMethod("start");
+
+  Future<void> stopTracker() async => await _channel.invokeMethod("stop");
+
 
   void dispose() {
     if (_subEventLocationEnable != null) _subEventLocationEnable.cancel();
     if (_subEventTrackingLocation != null) _subEventTrackingLocation.cancel();
     if (_subEventLocation != null) _subEventLocation.cancel();
+    if (_subPermissionResult != null) _subPermissionResult.cancel();
 
     _listenLocationController.close();
     _listenEnableLocationController.close();
     _listenTrackingLocationController.close();
+    _listenPermissionResultController.close();
   }
 }

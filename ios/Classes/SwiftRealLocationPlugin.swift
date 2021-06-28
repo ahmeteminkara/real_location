@@ -12,6 +12,7 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
     var eventLocationEnable:CustomEventSink!
     var eventLocation:CustomEventSink!
     var eventTrackingLocation:CustomEventSink!
+    var eventPermissionResult:CustomEventSink!
     
     public override init() {
         super.init()
@@ -19,10 +20,10 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
         
         locationManager = CLLocationManager()
         locationManager.delegate = self
-        locationManager.requestAlwaysAuthorization()
         
         
         
+        eventPermissionResult = CustomEventSink()
         eventLocation = CustomEventSink()
         eventLocationEnable = CustomEventSink()
         eventTrackingLocation = CustomEventSink()
@@ -46,6 +47,9 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
         
         FlutterEventChannel(name: "eventTrackingLocation", binaryMessenger: registrar.messenger())
             .setStreamHandler(instance.eventTrackingLocation)
+        
+        FlutterEventChannel(name: "eventPermissionResult", binaryMessenger: registrar.messenger())
+            .setStreamHandler(instance.eventPermissionResult)
         
     }
     
@@ -72,6 +76,9 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             //code
             eventTrackingLocation.eventSink?(false)
             locationManager.stopUpdatingLocation()
+            break
+        case "requestPermission":
+            locationManager.requestAlwaysAuthorization()
             break
             
         default:
@@ -109,23 +116,24 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             
         }
         
-    
+        
     }
     
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
-        
         switch status {
         case .authorizedAlways, .authorizedWhenInUse:
             isEnableLocation = true
-            locationManager.startUpdatingLocation()
+            //locationManager.startUpdatingLocation()
+            eventPermissionResult.eventSink?(true)
             break
         case .notDetermined, .restricted:
-            
-            locationManager.stopUpdatingLocation()
-            locationManager.requestAlwaysAuthorization()
+            //locationManager.stopUpdatingLocation()
+            //locationManager.requestAlwaysAuthorization()
+            eventPermissionResult.eventSink?(false)
             break
         case .denied:
+            eventPermissionResult.eventSink?(false)
             goToAppSetting()
             break
         default:
@@ -139,19 +147,18 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
     public func goToAppSetting(){
         // print(" --> goToAppSetting")
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: "Uyarı", message: "Konum erişimi kapalı, uygulamaya konum erişimi veriniz.", preferredStyle:.alert)
             
-            alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: {(cAlertAction) in
-               let url = URL(string:UIApplication.openSettingsURLString)
-                
-                if #available(iOS 10.0, *) {
-                    UIApplication.shared.open(url!)
-                } else {
-                    UIApplication.shared.openURL(url!)
-                }
-            }))
+            let url = URL(string:UIApplication.openSettingsURLString)
             
-            UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil);
+            if #available(iOS 10.0, *) {
+                UIApplication.shared.open(url!)
+            } else {
+                UIApplication.shared.openURL(url!)
+            }
+            
+            //let alert = UIAlertController(title: "Uyarı", message: "Konum erişimi kapalı, uygulamaya konum erişimi veriniz.", preferredStyle:.alert)
+            //alert.addAction(UIAlertAction(title: "Tamam", style: .default, handler: {(cAlertAction) in }))
+            //UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil);
         }
     }
     
