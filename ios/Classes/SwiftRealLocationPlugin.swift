@@ -69,7 +69,7 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             // print(" --> startLocation")
             eventTrackingLocation.eventSink?(true)
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestAlwaysAuthorization()
+            //locationManager.requestAlwaysAuthorization()
             locationManager.startUpdatingLocation()
             break
         case "stop":
@@ -78,6 +78,7 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             locationManager.stopUpdatingLocation()
             break
         case "requestPermission":
+            locationManager.requestWhenInUseAuthorization()
             locationManager.requestAlwaysAuthorization()
             break
             

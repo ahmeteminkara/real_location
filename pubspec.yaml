@@ -1,7 +1,6 @@
 name: real_location
 description: This flutter plugin listens for the location of the device. Returns real location, not mock location (for Android)
 version: 0.0.1+1
-author:
 homepage:
 
 environment:

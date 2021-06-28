@@ -74,12 +74,12 @@ class _MyAppState extends State<MyApp> {
       list.add(Text("${locationData.latitude.toStringAsFixed(5)},${locationData.longitude.toStringAsFixed(5)}"));
     }
 
-    list.add(FlatButton(
+    list.add(TextButton(
       onPressed: () => realLocation.startTracker(),
       child: Text("startTracker"),
     ));
 
-    list.add(FlatButton(
+    list.add(TextButton(
       onPressed: () => realLocation.stopTracker(),
       child: Text("stopTracker"),
     ));
