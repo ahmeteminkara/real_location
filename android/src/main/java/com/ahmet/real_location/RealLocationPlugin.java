@@ -160,7 +160,7 @@ public class RealLocationPlugin
                 eventSinkTrackingLocation.success(false);
                 break;
             case "requestPermission":
-                DeviceControls.checkSetting(activity);
+                DeviceControls.isLocationPermission(activity);
                 break;
 
         }
