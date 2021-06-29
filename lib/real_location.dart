@@ -13,7 +13,6 @@ class RealLocation {
   static StreamSubscription _subEventLocationEnable;
   static StreamSubscription _subEventTrackingLocation;
   static StreamSubscription _subEventLocation;
-  static StreamSubscription _subPermissionResult;
 
   RealLocation() {
     _setListener();
@@ -21,10 +20,6 @@ class RealLocation {
 
   _setListener() async {
     try {
-      _subPermissionResult = EventChannel("eventPermissionResult").receiveBroadcastStream().listen((e) {
-        // print("eventLocationEnable: $e");
-        _listenPermissionResultController.add(e);
-      });
 
       _subEventLocationEnable = EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
         // print("eventLocationEnable: $e");
@@ -64,11 +59,6 @@ class RealLocation {
   Stream<LocationData> get listenLocation => _listenLocationController.stream;
   final _listenLocationController = StreamController<LocationData>();
 
-  Stream<bool> get listenPermissionResult => _listenPermissionResultController.stream;
-  final _listenPermissionResultController = StreamController<bool>();
-
-  Future<void> requestPermission() async => await _channel.invokeMethod("requestPermission");
-
   Future<bool> get isLocationEnable async => await _channel.invokeMethod("isLocationEnable");
 
   Future<void> startTracker() async => await _channel.invokeMethod("start");
@@ -80,11 +70,9 @@ class RealLocation {
     if (_subEventLocationEnable != null) _subEventLocationEnable.cancel();
     if (_subEventTrackingLocation != null) _subEventTrackingLocation.cancel();
     if (_subEventLocation != null) _subEventLocation.cancel();
-    if (_subPermissionResult != null) _subPermissionResult.cancel();
 
     _listenLocationController.close();
     _listenEnableLocationController.close();
     _listenTrackingLocationController.close();
-    _listenPermissionResultController.close();
   }
 }

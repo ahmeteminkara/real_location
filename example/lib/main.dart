@@ -17,12 +17,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   RealLocation realLocation = RealLocation.instanse;
   LocationData locationData;
+  bool permissionStatus = false;
   bool isEnableLocation = false;
   bool isTrackingLocation = false;
 
   @override
   void initState() {
     super.initState();
+
 
     realLocation.listenEnableLocation.listen((bool isOpen) {
       setState(() => isEnableLocation = isOpen);
@@ -36,8 +38,6 @@ class _MyAppState extends State<MyApp> {
     realLocation.listenTrackingLocation.listen((bool isTracking) {
       setState(() => isTrackingLocation = isTracking);
     });
-
-    Timer(Duration(seconds: 1), realLocation.startTracker);
   }
 
   @override
@@ -65,6 +65,7 @@ class _MyAppState extends State<MyApp> {
 
   get bodyChildren {
     List<Widget> list = [];
+    list.add(Text("permissionStatus: $permissionStatus"));
 
     list.add(Text("isEnableLocation: $isEnableLocation"));
 
@@ -73,6 +74,7 @@ class _MyAppState extends State<MyApp> {
     if (locationData != null) {
       list.add(Text("${locationData.latitude.toStringAsFixed(5)},${locationData.longitude.toStringAsFixed(5)}"));
     }
+
 
     list.add(TextButton(
       onPressed: () => realLocation.startTracker(),

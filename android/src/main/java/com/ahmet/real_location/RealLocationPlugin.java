@@ -45,7 +45,6 @@ public class RealLocationPlugin
     private final Handler handlerLocation = new Handler();
     EventChannel.EventSink eventSinkLocation;
     EventChannel.EventSink eventSinkTrackingLocation;
-    EventChannel.EventSink eventSinkPermissionResult;
     private MethodChannel channel;
     private Context context;
     private Activity activity;
@@ -125,19 +124,6 @@ public class RealLocationPlugin
                     }
                 });
 
-        new EventChannel(messenger, "eventPermissionResult")
-                .setStreamHandler(new EventChannel.StreamHandler() {
-                    @Override
-                    public void onListen(Object arguments, EventChannel.EventSink events) {
-                        eventSinkPermissionResult = events;
-                    }
-
-                    @Override
-                    public void onCancel(Object arguments) {
-                        eventSinkPermissionResult = null;
-                    }
-                });
-
     }
 
     /**
@@ -159,10 +145,6 @@ public class RealLocationPlugin
                 handlerLocation.removeCallbacks(runnableLocation);
                 eventSinkTrackingLocation.success(false);
                 break;
-            case "requestPermission":
-                eventSinkPermissionResult.success(DeviceControls.isLocationPermission(activity));
-                break;
-
         }
     }
 
@@ -196,19 +178,16 @@ public class RealLocationPlugin
         //Log.d(TAG, "onRequestPermissionsResult");
         if (requestCode == DeviceControls.requestCodeLocation) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-
-                eventSinkPermissionResult.success(true);
-                /*
+                
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Konum erişimi reddedildi");
                 builder.setMessage("Konum erişimi izni vermeniz gerekmektedir");
                 builder.setPositiveButton(android.R.string.ok, null);
-                builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
+                //builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
                 builder.show();
 
-                 */
+                 
             } else {
-                eventSinkPermissionResult.success(false);
                 //runOnUiThreadMethod();
             }
         }
@@ -226,18 +205,18 @@ public class RealLocationPlugin
         if (requestCode == DeviceControls.locationResultCode) {
 
             if (DeviceControls.isOpenLocation(activity)) {
-                eventSinkPermissionResult.success(true);
+                //eventSinkPermissionResult.success(true);
                 //Toast.makeText(activity, "Konum açıldı", Toast.LENGTH_SHORT).show();
             } else {
-                eventSinkPermissionResult.success(false);
-                /*
+                //eventSinkPermissionResult.success(false);
+                
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Konum devre dışı");
                 builder.setMessage("Bu uygulamanın konum erişimine ihtiyacı var, lütfen konumu açınız");
                 builder.setPositiveButton(android.R.string.ok, null);
-                builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
+                //builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
                 builder.show();
-                */
+                
             }
 
         }
