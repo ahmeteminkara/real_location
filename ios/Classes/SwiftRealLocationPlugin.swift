@@ -44,9 +44,6 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
         FlutterEventChannel(name: "eventTrackingLocation", binaryMessenger: registrar.messenger())
             .setStreamHandler(instance.eventTrackingLocation)
         
-        FlutterEventChannel(name: "eventPermissionResult", binaryMessenger: registrar.messenger())
-            .setStreamHandler(instance.eventPermissionResult)
-        
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
