@@ -1,10 +1,16 @@
 package com.ahmet.real_location;
 
+import android.annotation.SuppressLint;
 import android.location.Location;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+@SuppressLint("SimpleDateFormat")
 public class LocationData {
+    long time;
     double latitude;
     double longitude;
     double speed;
@@ -15,6 +21,7 @@ public class LocationData {
         this.speed = location.getSpeed();
         this.longitude = location.getLongitude();
         this.latitude = location.getLatitude();
+        this.time = location.getTime();
     }
 
 
@@ -26,8 +33,20 @@ public class LocationData {
             jsonObject.put("longitude", longitude);
             jsonObject.put("speed", speed);
             jsonObject.put("accuracy", accuracy);
+            jsonObject.put("time", longToDateString());
+
         } catch (Exception ignored) {
         }
         return jsonObject.toString();
+    }
+
+    private String longToDateString() {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return format.format(new Date(time));
+        } catch (Exception e) {
+            return "[!]";
+        }
+
     }
 }

@@ -22,7 +22,7 @@ class RealLocation {
     try {
 
       _subEventLocationEnable = EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
-        // print("eventLocationEnable: $e");
+         print("eventLocationEnable: $e");
         _listenEnableLocationController.add(e);
       });
 
