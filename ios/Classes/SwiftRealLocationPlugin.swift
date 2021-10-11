@@ -81,12 +81,10 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
         eventLocationEnable.eventSink?(isEnableLocation)
         
         if !isEnableLocation {
-            eventLocation.eventSink?(false)
             return
         }
         
         var dictionary =  [String:Any]()
-        eventLocation.eventSink?(true)
         
         locations.forEach { (location:CLLocation ) in
             dictionary.removeAll()
@@ -94,7 +92,7 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             dictionary.updateValue(location.coordinate.longitude, forKey: "longitude")
             dictionary.updateValue(location.verticalAccuracy, forKey: "accuracy")
             dictionary.updateValue(location.speed, forKey: "speed")
-            dictionary.updateValue(location.timestamp, forKey: "time")
+            dictionary.updateValue(UInt64(location.timestamp.timeIntervalSince1970 * 1000) , forKey: "time")
             
             if let theJSONData = try? JSONSerialization.data(
                 withJSONObject: dictionary,

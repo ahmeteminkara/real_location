@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -38,7 +40,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration.zero, () => initRealLocation());
+    Timer(Duration.zero, () => initRealLocation());
   }
 
   @override
@@ -139,8 +141,8 @@ class _MainPageState extends State<MainPage> {
 
     if (locationData.time != null) {
       list.add(Text("time: " + locationData.time.toString()));
-      final int diff = DateTime.now().difference(locationData.time).inSeconds;
-      list.add(Text("time diff: $diff Seconds"));
+      final int diff = DateTime.now().difference(locationData.time).inMilliseconds;
+      list.add(Text("time diff: $diff Milliseconds"));
     }
 
     list.add(SizedBox(height: 10));

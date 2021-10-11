@@ -32,6 +32,7 @@ class RealLocation {
 
       _subEventLocation = EventChannel("eventLocation").receiveBroadcastStream().listen((e) {
         try {
+          if (e.runtimeType != String) return;
           Map<String, dynamic> json = jsonDecode(e);
           print("eventLocation -> json: $json");
 
