@@ -1,6 +1,5 @@
 package com.ahmet.real_location;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -8,16 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.util.Date;
 import java.util.List;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -44,7 +40,7 @@ public class RealLocationPlugin
         PluginRegistry.ActivityResultListener,
         PluginRegistry.RequestPermissionsResultListener {
 
-    public static final String TAG = RealLocationPlugin.class.getName();
+    public static final String TAG = "RealLocationPlugin";
 
     EventChannel.EventSink eventSinkLocation;
     EventChannel.EventSink eventSinkTrackingLocation;
@@ -135,10 +131,8 @@ public class RealLocationPlugin
                     locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
                     try {
                         eventSinkTrackingLocation.success(true);
-                        List<String> providers = locationManager.getProviders(true);
-                        for (String provider : providers) {
-                            locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
-                        }
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
                     } catch (Exception e) {
                         //Log.e(TAG, "timerLocation.schedule: " + e.toString());
                     }
@@ -150,18 +144,21 @@ public class RealLocationPlugin
                 break;
         }
     }
-    private LocationListener locationListener = new LocationListener() {
+
+    private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
             if (location.isFromMockProvider()) {
                 Log.e(TAG, "Location[" + location.getProvider() + "] isFromMockProvider !!!!!!");
                 eventSinkLocation.success(null);
             } else {
-                eventSinkLocation.success(new LocationData(location).toString());
-                Log.d(TAG, "Location[" + location.getProvider() + "] -> " + location);
+                String locationData = new LocationData(location).toString();
+                Log.e(TAG, "Location[" + location.getProvider() + "] -> " + locationData);
+                eventSinkLocation.success(locationData);
             }
         }
     };
+
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
@@ -212,34 +209,27 @@ public class RealLocationPlugin
      */
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        //Log.d(TAG, "onActivityResult");
-
-        //Log.d(TAG, "requestCode " + requestCode + ", requestCodeLocation: " + resultCode);
+            /*
         if (requestCode == DeviceControls.locationResultCode) {
 
             if (DeviceControls.isOpenLocation(activity)) {
-                //eventSinkPermissionResult.success(true);
-                //Toast.makeText(activity, "Konum açıldı", Toast.LENGTH_SHORT).show();
+                ///eventSinkPermissionResult.success(true);
+                ///Toast.makeText(activity, "Konum açıldı", Toast.LENGTH_SHORT).show();
             } else {
-                //eventSinkPermissionResult.success(false);
+                ///eventSinkPermissionResult.success(false);
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Konum devre dışı");
                 builder.setMessage("Bu uygulamanın konum erişimine ihtiyacı var, lütfen konumu açınız");
                 builder.setPositiveButton(android.R.string.ok, null);
-                //builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
+                ///builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
                 builder.show();
 
             }
 
         }
+            */
         return false;
-    }
-
-    private void runOnUiThreadMethod() {
-        //Log.i(TAG, "runOnUiThreadMethod");
-
-
     }
 
 

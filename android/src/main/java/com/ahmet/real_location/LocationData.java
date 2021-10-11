@@ -33,7 +33,8 @@ public class LocationData {
             jsonObject.put("longitude", longitude);
             jsonObject.put("speed", speed);
             jsonObject.put("accuracy", accuracy);
-            jsonObject.put("time", longToDateString());
+            jsonObject.put("time", time);
+            jsonObject.put("time_format", longToDateString());
 
         } catch (Exception ignored) {
         }

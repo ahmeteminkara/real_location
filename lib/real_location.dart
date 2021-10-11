@@ -20,9 +20,8 @@ class RealLocation {
 
   _setListener() async {
     try {
-
       _subEventLocationEnable = EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
-         print("eventLocationEnable: $e");
+        print("eventLocationEnable: $e");
         _listenEnableLocationController.add(e);
       });
 
@@ -34,15 +33,24 @@ class RealLocation {
       _subEventLocation = EventChannel("eventLocation").receiveBroadcastStream().listen((e) {
         try {
           Map<String, dynamic> json = jsonDecode(e);
-          // print("eventLocation -> json: $json");
-          _listenLocationController.add(LocationData(
+          print("eventLocation -> json: $json");
+
+          LocationData location = LocationData(
             double.parse(json["latitude"].toString()),
             double.parse(json["longitude"].toString()),
             accuracy: double.parse(json["accuracy"].toString()),
             speed: double.parse(json["speed"].toString()),
-          ));
+          );
+
+          try {
+            location.time = DateTime.fromMillisecondsSinceEpoch(int.parse(json["time"].toString()));
+          } catch (e) {
+            print("eventLocation location.time -> error: " + e.toString());
+          }
+
+          _listenLocationController.add(location);
         } catch (e) {
-          // print("eventLocation -> error: "+ e.toString());
+          print("eventLocation -> error: " + e.toString());
         }
       });
     } catch (e) {
@@ -64,7 +72,6 @@ class RealLocation {
   Future<void> startTracker() async => await _channel.invokeMethod("start");
 
   Future<void> stopTracker() async => await _channel.invokeMethod("stop");
-
 
   void dispose() {
     if (_subEventLocationEnable != null) _subEventLocationEnable.cancel();

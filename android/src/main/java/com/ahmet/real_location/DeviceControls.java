@@ -25,25 +25,6 @@ public class DeviceControls {
     @SuppressLint("StaticFieldLeak")
 
     /**
-     * cihazda bluetooth u kontrol eder
-     * @param activity
-     */
-    public static boolean isOpenBluetooth(Activity activity) {
-
-        BluetoothManager bluetoothManager = (BluetoothManager)
-                activity.getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        return bluetoothAdapter.isEnabled();
-    }
-
-    /**
-     * cihazda ble desteğini kontrol eder
-     */
-    public static boolean isSupportBle(Activity activity) {
-        return activity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-    }
-
-    /**
      * cihazın konumunu kontrol eder
      */
     public static boolean isOpenLocation(Activity activity) {
@@ -109,7 +90,9 @@ public class DeviceControls {
         }
         if (!isOpenLocation(activity)) {
             Intent viewIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            activity.startActivityForResult(viewIntent, locationResultCode);
+            if (activity != null) {
+                activity.startActivityForResult(viewIntent, locationResultCode);
+            }
             return false;
         }
 

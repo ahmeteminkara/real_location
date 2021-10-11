@@ -94,6 +94,7 @@ public class SwiftRealLocationPlugin: NSObject, FlutterPlugin, CLLocationManager
             dictionary.updateValue(location.coordinate.longitude, forKey: "longitude")
             dictionary.updateValue(location.verticalAccuracy, forKey: "accuracy")
             dictionary.updateValue(location.speed, forKey: "speed")
+            dictionary.updateValue(location.timestamp, forKey: "time")
             
             if let theJSONData = try? JSONSerialization.data(
                 withJSONObject: dictionary,
