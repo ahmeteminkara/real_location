@@ -22,7 +22,7 @@ class LocationData {
       "longitude": longitude,
       "speed": speed.toStringAsFixed(0),
       "accuracy": accuracy.toStringAsFixed(0),
-      "time": time,
+      "time": time.toString(),
     });
   }
 }
