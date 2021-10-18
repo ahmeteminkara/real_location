@@ -21,7 +21,7 @@ class RealLocation {
   _setListener() async {
     try {
       _subEventLocationEnable = EventChannel("eventLocationEnable").receiveBroadcastStream().listen((e) {
-        print("eventLocationEnable: $e");
+        // print("eventLocationEnable: $e");
         _listenEnableLocationController.add(e);
       });
 
@@ -34,7 +34,7 @@ class RealLocation {
         try {
           if (e.runtimeType != String) return;
           Map<String, dynamic> json = jsonDecode(e);
-          print("eventLocation -> json: $json");
+          // print("eventLocation -> json: $json");
 
           LocationData location = LocationData(
             double.parse(json["latitude"].toString()),
@@ -55,7 +55,7 @@ class RealLocation {
         }
       });
     } catch (e) {
-      // print("Error: $e");
+      print("Error: $e");
     }
   }
 
