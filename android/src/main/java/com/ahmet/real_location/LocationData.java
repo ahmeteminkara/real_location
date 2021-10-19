@@ -15,15 +15,16 @@ public class LocationData {
     double longitude;
     double speed;
     double accuracy;
+    boolean isFake;
 
-    public LocationData(Location location) {
+    public LocationData(Location location, boolean isFake) {
         this.accuracy = location.getAccuracy();
         this.speed = location.getSpeed();
         this.longitude = location.getLongitude();
         this.latitude = location.getLatitude();
         this.time = location.getTime();
+        this.isFake = isFake;
     }
-
 
     @Override
     public String toString() {
@@ -34,6 +35,7 @@ public class LocationData {
             jsonObject.put("speed", speed);
             jsonObject.put("accuracy", accuracy);
             jsonObject.put("time", time);
+            jsonObject.put("isFake", isFake);
             jsonObject.put("time_format", longToDateString());
 
         } catch (Exception ignored) {

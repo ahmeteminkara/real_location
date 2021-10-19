@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -42,6 +43,7 @@ class RealLocation {
             accuracy: double.parse(json["accuracy"].toString()),
             speed: double.parse(json["speed"].toString()),
           );
+          if (Platform.isAndroid && json["isFake"] != null) location.isFake = json["isFake"];
 
           try {
             location.time = DateTime.fromMillisecondsSinceEpoch(int.parse(json["time"].toString()));

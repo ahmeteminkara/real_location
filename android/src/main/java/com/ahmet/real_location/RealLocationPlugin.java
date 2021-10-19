@@ -148,14 +148,11 @@ public class RealLocationPlugin
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            if (location.isFromMockProvider()) {
-                Log.e(TAG, "Location[" + location.getProvider() + "] isFromMockProvider !!!!!!");
-                eventSinkLocation.success(null);
-            } else {
-                String locationData = new LocationData(location).toString();
-                Log.e(TAG, "Location[" + location.getProvider() + "] -> " + locationData);
-                eventSinkLocation.success(locationData);
-            }
+
+            String locationData = new LocationData(location, location.isFromMockProvider()).toString();
+            Log.e(TAG, "Location[" + location.getProvider() + "] -> " + locationData);
+            eventSinkLocation.success(locationData);
+
         }
     };
 

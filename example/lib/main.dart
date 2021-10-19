@@ -60,6 +60,22 @@ class _MainPageState extends State<MainPage> {
       if (data == null) return;
       setState(() => locationData = data);
       centerMap(data);
+      if (data.isFake) {
+        realLocation.stopTracker();
+
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("UYARI"),
+              content: Text("Fake GPS kullanılıyor"),
+              actions: [
+                TextButton(child: Text("Tamam"), onPressed: () => Navigator.pop(context)),
+              ],
+            );
+          },
+        );
+      }
     });
 
     realLocation.listenTrackingLocation.listen((bool isTracking) {
