@@ -1,5 +1,7 @@
 package com.ahmet.real_location;
 
+import static android.content.Context.LOCATION_SERVICE;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -14,8 +16,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.util.List;
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -26,8 +26,6 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * RealLocationPlugin
@@ -60,6 +58,8 @@ public class RealLocationPlugin
 
         channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "real_location");
         channel.setMethodCallHandler(this);
+
+        locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
 
         BinaryMessenger messenger = flutterPluginBinding.getBinaryMessenger();
 
@@ -128,30 +128,56 @@ public class RealLocationPlugin
                 break;
             case "start":
                 if (DeviceControls.checkSetting(activity)) {
-                    locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-                    try {
-                        eventSinkTrackingLocation.success(true);
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-                    } catch (Exception e) {
-                        //Log.e(TAG, "timerLocation.schedule: " + e.toString());
-                    }
+                    startTracker();
                 }
                 break;
             case "stop":
-                locationManager.removeUpdates(locationListener);
-                eventSinkTrackingLocation.success(false);
+                stopTracker();
                 break;
+        }
+    }
+
+    private void stopTracker() {
+
+        locationManager.removeUpdates(locationListener);
+        eventSinkTrackingLocation.success(false);
+    }
+
+    private void startTracker() {
+        try {
+            eventSinkTrackingLocation.success(true);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        } catch (Exception e) {
+            //Log.e(TAG, "timerLocation.schedule: " + e.toString());
         }
     }
 
     private final LocationListener locationListener = new LocationListener() {
         @Override
+        public void onProviderDisabled(@NonNull String provider) {
+            stopTracker();
+        }
+
+        @Override
+        public void onProviderEnabled(@NonNull String provider) {
+            startTracker();
+        }
+
+        @Override
         public void onLocationChanged(@NonNull Location location) {
 
-            String locationData = new LocationData(location, location.isFromMockProvider()).toString();
-            Log.e(TAG, "Location[" + location.getProvider() + "] -> " + locationData);
-            eventSinkLocation.success(locationData);
+            try {
+
+                String locationData = new LocationData(location, location.isFromMockProvider()).toString();
+                Log.e(TAG, "Location[" + location.getProvider() + "] -> " + locationData);
+                eventSinkLocation.success(locationData);
+
+            } catch (Exception e) {
+
+                stopTracker();
+
+            }
 
         }
     };
@@ -184,8 +210,17 @@ public class RealLocationPlugin
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         //Log.d(TAG, "onRequestPermissionsResult");
         if (requestCode == DeviceControls.requestCodeLocation) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+                if (DeviceControls.checkSetting(activity)) {
+                    startTracker();
+                } else {
+                    if (DeviceControls.isOpenLocation(activity)) {
+                        startTracker();
+                    }
+                }
+
+            } else {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Konum erişimi reddedildi");
                 builder.setMessage("Konum erişimi izni vermeniz gerekmektedir");
@@ -194,8 +229,6 @@ public class RealLocationPlugin
                 builder.show();
 
 
-                //} else {
-                //runOnUiThreadMethod();
             }
         }
         return false;
@@ -206,26 +239,14 @@ public class RealLocationPlugin
      */
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-            /*
+
         if (requestCode == DeviceControls.locationResultCode) {
 
             if (DeviceControls.isOpenLocation(activity)) {
-                ///eventSinkPermissionResult.success(true);
-                ///Toast.makeText(activity, "Konum açıldı", Toast.LENGTH_SHORT).show();
-            } else {
-                ///eventSinkPermissionResult.success(false);
-
-                final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("Konum devre dışı");
-                builder.setMessage("Bu uygulamanın konum erişimine ihtiyacı var, lütfen konumu açınız");
-                builder.setPositiveButton(android.R.string.ok, null);
-                ///builder.setOnDismissListener(dialog -> runOnUiThreadMethod());
-                builder.show();
-
+                startTracker();
             }
 
         }
-            */
         return false;
     }
 
